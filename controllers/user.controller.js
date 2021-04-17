@@ -1,3 +1,6 @@
+const User = require('../models/user');
+const bcrypt = require('bcryptjs');
+
 const userGet = (req, res)=>{
     // res.status(400).send('Hola mundo')
     // res.set('Content-Type', 'text/html');
@@ -11,15 +14,33 @@ const userGet = (req, res)=>{
     })
 }
 
-const userPost = (req, res)=>{
-    console.log('BODY',req.body);
-    const { name, apellido } = req.body;
+const userPost = async (req, res)=>{
+    let { name, email, password, role } = req.body;
+
+    // Verify if email exist
+    const emailExits = await User.findOne({ email });
+    if(emailExits){
+        // Finalize request
+        return res.status(400).json({
+            "msg": "Email already exist"
+        });
+    }
+
+    // Generate password hash
+    const salt = bcrypt.genSaltSync();
+    password = bcrypt.hashSync(password, salt)
+
+    // Create document
+    const user = new User({name, email, password, role});
+
+    // Save document
+    await user.save();
+
     // res.status(400).send('Hola mundo')
     res.json({
         name: 'User',
         method: 'POST',
-        name,
-        apellido
+        user
     })
 }
 
