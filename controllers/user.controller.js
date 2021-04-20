@@ -33,15 +33,24 @@ const userPost = async (req, res)=>{
     res.json({ user });
 }
 
-const userPut =  (req, res)=>{
-    // res.status(400).send('Hola mundo')
+const userPut = async (req, res)=>{
     // res.set('Content-Type', 'application/json')
     const { id } = req.params;
+    const { _id, password, google, ...remaining } = req.body;
+    // console.log(password, google, remaining)
+    if(password){
+        // Generate password hash
+        const salt = bcrypt.genSaltSync();
+        remaining.password = bcrypt.hashSync(password, salt)
+    }
+    const user = await User.findByIdAndUpdate(id, remaining);
+
+
+    
     console.log(req.params)
     res.json({
-        name: 'User',
         method: 'PUT',
-        id
+        user
     })
 }
 
