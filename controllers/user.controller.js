@@ -4,15 +4,23 @@ const User = require('../models/user');
 
 
 
-const userGet = (req, res)=>{
+const userGet = async (req, res)=>{
     // res.set('Content-Type', 'text/html');
     // Query params
-    const { name, hobby } = req.query;
-    // localhost:8080/user?name=mel&hobby=freefire
-    console.log(name, hobby)
+    // localhost:8080/user?from=5&limit=4
+    const query = { status: true };
+    const { from=0, limit=5 } = req.query;
+
+    const [ total, users ] = await Promise.all([
+        User.countDocuments(query),
+        User.find(query)
+            .skip( Number(from) )
+            .limit( Number(limit) )
+    ]);
+
     res.json({
-        name: 'User',
-        method: 'GET'
+        total,
+        users
     })
 }
 
@@ -54,11 +62,12 @@ const userPut = async (req, res)=>{
     })
 }
 
-const userDelete = (req, res)=>{
-    // res.status(400).send('Hola mundo')
+const userDelete = async (req, res)=>{
+    const { id } = req.params;
+    // const user = await User.findByIdAndDelete( id );
+    const user = await User.findByIdAndUpdate(id, { status: false });
     res.json({
-        name: 'User',
-        method: 'DELETE'
+        removed: user
     })
 }
 
