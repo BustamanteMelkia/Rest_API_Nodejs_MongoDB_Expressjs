@@ -64,10 +64,12 @@ const userPut = async (req, res)=>{
 
 const userDelete = async (req, res)=>{
     const { id } = req.params;
+    
     // const user = await User.findByIdAndDelete( id );
     const user = await User.findByIdAndUpdate(id, { status: false });
     res.json({
-        removed: user
+        removed: user,
+        authenticated: req.user
     })
 }
 
